@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cyber Guardian - Security Awareness Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            color: #fff;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            animation: fadeIn 1s ease-in;
+        }
+
+        .header h1 {
+            font-size: 3em;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.3);
+            margin-bottom: 10px;
+        }
+
+        .header .shield {
+            font-size: 4em;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .game-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 800px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: slideUp 0.5s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .score-board {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 25px;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+            color: white;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        .score-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .question-container {
+            margin-bottom: 25px;
+        }
+
+        .question {
+            font-size: 1.3em;
+            color: #333;
+            margin-bottom: 20px;
+            font-weight: 600;
+            line-height: 1.5;
+        }
+
+        .scenario {
+            background: #f0f4ff;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 4px solid #667eea;
+            font-style: italic;
+            color: #555;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option {
+            padding: 18px;
+            background: #f8f9fa;
+            border: 3px solid #e0e0e0;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.05em;
+            color: #333;
+        }
+
+        .option:hover {
+            transform: translateX(5px);
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .option.correct {
+            background: #d4edda;
+            border-color: #28a745;
+            animation: correctAnim 0.5s ease;
+        }
+
+        .option.wrong {
+            background: #f8d7da;
+            border-color: #dc3545;
+            animation: wrongAnim 0.5s ease;
+        }
+
+        @keyframes correctAnim {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        @keyframes wrongAnim {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+        }
+
+        .option.disabled {
+            pointer-events: none;
+            opacity: 0.6;
+        }
+
+        .feedback {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            font-weight: 500;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .feedback.correct {
+            background: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+
+        .feedback.wrong {
+            background: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid #dc3545;
+        }
+
+        .next-btn {
+            margin-top: 20px;
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: none;
+        }
+
+        .next-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .final-score {
+            text-align: center;
+            color: #333;
+        }
+
+        .final-score h2 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            color: #667eea;
+        }
+
+        .final-score .score-display {
+            font-size: 3em;
+            font-weight: bold;
+            color: #764ba2;
+            margin: 20px 0;
+        }
+
+        .final-score .message {
+            font-size: 1.3em;
+            margin: 20px 0;
+            color: #555;
+        }
+
+        .restart-btn {
+            margin-top: 30px;
+            padding: 15px 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .restart-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s ease;
+            border-radius: 10px;
+        }
+
+        .credits {
+            margin-top: 30px;
+            text-align: center;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+        }
+
+        .credits h3 {
+            font-size: 1.3em;
+            margin-bottom: 8px;
+        }
+
+        .credits p {
+            font-size: 1.1em;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="shield">🛡️</div>
+        <h1>Cyber Guardian</h1>
+        <p style="font-size: 1.2em;">Test Your Cybersecurity Knowledge!</p>
+    </div>
+
+    <div class="game-container">
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+
+        <div class="score-board">
+            <div class="score-item">
+                <span>🎯 Score:</span>
+                <span id="score">0</span>
+            </div>
+            <div class="score-item">
+                <span>❓ Question:</span>
+                <span id="questionNum">1/10</span>
+            </div>
+        </div>
+
+        <div id="gameContent">
+            <div class="question-container">
+                <div class="question" id="question"></div>
+                <div class="scenario" id="scenario"></div>
+                <div class="options" id="options"></div>
+                <div class="feedback" id="feedback"></div>
+                <button class="next-btn" id="nextBtn">Next Question →</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="credits">
+        <h3>Made by Ayub and Huzaifa</h3>
+        <p>Indian School Muscat | Class 9 E</p>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                question: "You receive an email from your bank asking you to verify your account by clicking a link. What should you do?",
+                scenario: "Email: 'Dear Customer, suspicious activity detected. Click here immediately to verify your account or it will be suspended within 24 hours.'",
+                options: [
+                    "Click the link immediately to save your account",
+                    "Delete the email and contact your bank directly using their official phone number",
+                    "Reply to the email asking for more information",
+                    "Forward it to all your contacts to warn them"
+                ],
+                correct: 1,
+                explanation: "Never click links in suspicious emails! Banks never ask for verification via email. Always contact them directly using official channels. This is a phishing attempt."
+            },
+            {
+                question: "What makes a strong password?",
+                scenario: "You're creating a new account and need to set a password.",
+                options: [
+                    "Your name and birth year (e.g., John2008)",
+                    "A mix of uppercase, lowercase, numbers, and symbols (e.g., P@ssw0rd!23Xy)",
+                    "The word 'password' with some numbers",
+                    "Your favorite pet's name"
+                ],
+                correct: 1,
+                explanation: "Strong passwords should be at least 12 characters long with a mix of uppercase, lowercase, numbers, and symbols. Avoid personal information that can be easily guessed."
+            },
+            {
+                question: "You're on public Wi-Fi at a café. What's the safest action?",
+                scenario: "You need to check your email and do some online shopping while waiting for a friend.",
+                options: [
+                    "Go ahead and shop online - public Wi-Fi is always safe",
+                    "Avoid accessing sensitive accounts or use a VPN",
+                    "Share your banking details only if the website looks secure",
+                    "Use the same password for all sites to remember it easily"
+                ],
+                correct: 1,
+                explanation: "Public Wi-Fi is not secure! Hackers can intercept your data. Avoid sensitive transactions or use a VPN (Virtual Private Network) to encrypt your connection."
+            },
+            {
+                question: "A pop-up says 'You've won a free iPhone! Click here to claim.' What do you do?",
+                scenario: "While browsing a website, a flashy pop-up appears claiming you're a winner.",
+                options: [
+                    "Click it immediately - free iPhone!",
+                    "Close the pop-up and run a security scan",
+                    "Enter your personal details to claim the prize",
+                    "Share it on social media to help others win too"
+                ],
+                correct: 1,
+                explanation: "This is a classic scam! Legitimate companies don't give away prizes this way. Close the pop-up immediately and never enter personal information. Run a security scan if you accidentally clicked."
+            },
+            {
+                question: "Your friend sends you a weird message with a link on social media. What should you do?",
+                scenario: "Message: 'OMG look at this funny video of you! [suspicious link]' - but it doesn't sound like how your friend usually talks.",
+                options: [
+                    "Click the link - it's from a friend so it's safe",
+                    "Contact your friend through another method to verify they sent it",
+                    "Share the link with other friends",
+                    "Ignore it and don't tell your friend"
+                ],
+                correct: 1,
+                explanation: "Your friend's account may be compromised! Contact them directly through phone or another platform to verify. Never click suspicious links, even from friends."
+            },
+            {
+                question: "What information is safe to share on social media?",
+                scenario: "You're excited about your upcoming vacation and want to post about it.",
+                options: [
+                    "Your home address and exact travel dates",
+                    "Real-time updates of your current location",
+                    "Photos and stories after you return home",
+                    "Your flight details and booking confirmation"
+                ],
+                correct: 2,
+                explanation: "Posting vacation plans in real-time tells criminals your home is empty! Share your experiences after you return. Never post personal details like addresses, phone numbers, or real-time locations."
+            },
+            {
+                question: "You find a USB drive in the school parking lot. What do you do?",
+                scenario: "A USB drive is lying on the ground with no label or owner information.",
+                options: [
+                    "Plug it into your computer to see what's on it",
+                    "Turn it in to the school office without plugging it in",
+                    "Keep it and use it for storing your files",
+                    "Share it with friends to see if anyone recognizes it"
+                ],
+                correct: 1,
+                explanation: "Never plug in unknown USB drives! They could contain malware that infects your computer the moment you plug them in. Turn it in to lost and found."
+            },
+            {
+                question: "What's the safest way to use two-factor authentication (2FA)?",
+                scenario: "A website offers multiple 2FA options to secure your account.",
+                options: [
+                    "SMS text messages to your phone",
+                    "Authentication app like Google Authenticator",
+                    "Email verification only",
+                    "Security questions about your pet's name"
+                ],
+                correct: 1,
+                explanation: "Authentication apps are the most secure 2FA method! SMS can be intercepted, and security questions can be guessed. Apps generate unique time-based codes that are much harder to compromise."
+            },
+            {
+                question: "Someone claiming to be from tech support calls saying your computer has a virus. What do you do?",
+                scenario: "Caller: 'This is Microsoft tech support. Your computer is sending us virus alerts. We need remote access to fix it immediately.'",
+                options: [
+                    "Give them remote access to fix the problem",
+                    "Hang up and contact the company directly using official channels",
+                    "Share your credit card to pay for the 'fix'",
+                    "Download the software they recommend"
+                ],
+                correct: 1,
+                explanation: "This is a tech support scam! Real tech companies never cold-call about viruses. They can't detect viruses on your computer remotely. Hang up immediately and report the number."
+            },
+            {
+                question: "What should you do before downloading an app on your phone?",
+                scenario: "You find a cool new game that promises free rewards.",
+                options: [
+                    "Download it immediately if it's free",
+                    "Check reviews, developer info, and app permissions carefully",
+                    "Download it if at least 10 people installed it",
+                    "Only check if it has pretty graphics"
+                ],
+                correct: 1,
+                explanation: "Always research apps before downloading! Check reviews, verify the developer, and review what permissions the app requests. Malicious apps can steal your data or damage your device."
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let answered = false;
+
+        function loadQuestion() {
+            answered = false;
+            const q = questions[currentQuestion];
+            
+            document.getElementById('question').textContent = q.question;
+            document.getElementById('scenario').textContent = q.scenario;
+            document.getElementById('questionNum').textContent = `${currentQuestion + 1}/${questions.length}`;
+            document.getElementById('feedback').style.display = 'none';
+            document.getElementById('nextBtn').style.display = 'none';
+            
+            const progressPercent = ((currentQuestion) / questions.length) * 100;
+            document.getElementById('progressFill').style.width = progressPercent + '%';
+            
+            const optionsContainer = document.getElementById('options');
+            optionsContainer.innerHTML = '';
+            
+            q.options.forEach((option, index) => {
+                const optionDiv = document.createElement('div');
+                optionDiv.className = 'option';
+                optionDiv.textContent = option;
+                optionDiv.onclick = () => selectAnswer(index);
+                optionsContainer.appendChild(optionDiv);
+            });
+        }
+
+        function selectAnswer(selectedIndex) {
+            if (answered) return;
+            answered = true;
+            
+            const q = questions[currentQuestion];
+            const options = document.querySelectorAll('.option');
+            const feedbackDiv = document.getElementById('feedback');
+            
+            options.forEach(opt => opt.classList.add('disabled'));
+            
+            if (selectedIndex === q.correct) {
+                options[selectedIndex].classList.add('correct');
+                feedbackDiv.className = 'feedback correct';
+                feedbackDiv.textContent = '✓ Correct! ' + q.explanation;
+                score += 10;
+                document.getElementById('score').textContent = score;
+            } else {
+                options[selectedIndex].classList.add('wrong');
+                options[q.correct].classList.add('correct');
+                feedbackDiv.className = 'feedback wrong';
+                feedbackDiv.textContent = '✗ Incorrect. ' + q.explanation;
+            }
+            
+            feedbackDiv.style.display = 'block';
+            document.getElementById('nextBtn').style.display = 'block';
+        }
+
+        document.getElementById('nextBtn').onclick = function() {
+            currentQuestion++;
+            if (currentQuestion < questions.length) {
+                loadQuestion();
+            } else {
+                showFinalScore();
+            }
+        };
+
+        function showFinalScore() {
+            const percentage = (score / (questions.length * 10)) * 100;
+            let message = '';
+            let emoji = '';
+            
+            if (percentage >= 90) {
+                message = 'Outstanding! You\'re a Cyber Guardian Expert! 🏆';
+                emoji = '🌟';
+            } else if (percentage >= 70) {
+                message = 'Great job! You have solid cybersecurity knowledge! 👏';
+                emoji = '🎯';
+            } else if (percentage >= 50) {
+                message = 'Good effort! Keep learning about online safety! 📚';
+                emoji = '💪';
+            } else {
+                message = 'Keep practicing! Cybersecurity is important! 🛡️';
+                emoji = '📖';
+            }
+            
+            document.getElementById('gameContent').innerHTML = `
+                <div class="final-score">
+                    <h2>${emoji} Game Complete! ${emoji}</h2>
+                    <div class="score-display">${score} / ${questions.length * 10}</div>
+                    <div class="message">${message}</div>
+                    <p style="color: #666; margin: 20px 0;">You got ${score/10} out of ${questions.length} questions correct!</p>
+                    <button class="restart-btn" onclick="restartGame()">🔄 Play Again</button>
+                </div>
+            `;
+            
+            document.getElementById('progressFill').style.width = '100%';
+        }
+
+        function restartGame() {
+            currentQuestion = 0;
+            score = 0;
+            document.getElementById('score').textContent = '0';
+            loadQuestion();
+        }
+
+        loadQuestion();
+    </script>
+</body>
+</html>
